@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca Piveta</title>
+<style>
+  :root {
+    --azul-escuro: #0f2744;
+    --azul-medio: #1a3a5c;
+    --azul-claro: #2563a8;
+    --azul-hover: #1d4ed8;
+    --azul-bg: #e8f0fb;
+    --branco: #ffffff;
+    --cinza-bg: #f4f6f9;
+    --cinza-claro: #eaeef3;
+    --cinza-borda: #d1d9e3;
+    --cinza-texto: #6b7a8d;
+    --texto-principal: #0f2744;
+    --texto-secundario: #4a5568;
+    --verde: #15803d;
+    --vermelho: #dc2626;
+    --amarelo-bg: #fef9c3;
+    --amarelo-borda: #fde047;
+    --sombra: 0 2px 12px rgba(15,39,68,0.08);
+    --sombra-hover: 0 6px 24px rgba(15,39,68,0.14);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --transition: 0.2s ease;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--cinza-bg);
+    color: var(--texto-principal);
+    line-height: 1.6;
+  }
+
+  /* ===== TELA 1 ===== */
+  #tela-bv {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-medio) 50%, #1e4d8a 100%);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  #tela-bv::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 480px; height: 480px;
+    border-radius: 50%;
+    background: rgba(37,99,168,0.18);
+    pointer-events: none;
+  }
+  #tela-bv::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: rgba(37,99,168,0.12);
+    pointer-events: none;
+  }
+  .bv-logo {
+    padding: 28px 40px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--branco);
+    letter-spacing: -0.3px;
+    z-index: 1;
+  }
+  .bv-logo span { color: #93c5fd; }
+  .bv-centro {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px;
+    z-index: 1;
+  }
+  .bv-icone {
+    width: 72px; height: 72px;
+    background: rgba(255,255,255,0.1);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 32px;
+    font-size: 32px;
+  }
+  .bv-titulo {
+    font-size: clamp(26px, 5vw, 42px);
+    font-weight: 700;
+    color: var(--branco);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    max-width: 560px;
+  }
+  .bv-subtitulo {
+    font-size: 17px;
+    color: rgba(255,255,255,0.72);
+    max-width: 480px;
+    line-height: 1.65;
+    margin-bottom: 48px;
+  }
+  .bv-btn {
+    background: var(--branco);
+    color: var(--azul-escuro);
+    border: none;
+    padding: 15px 36px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition);
+    letter-spacing: -0.2px;
+  }
+  .bv-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(15,39,68,0.28); }
+  .bv-btn:active { transform: translateY(0); }
+  .bv-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 56px;
+    z-index: 1;
+    padding-bottom: 40px;
+  }
+  .bv-stat { text-align: center; }
+  .bv-stat-num { font-size: 26px; font-weight: 700; color: var(--branco); }
+  .bv-stat-label { font-size: 12px; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.8px; }
+
+  /* ===== TELA 2 ===== */
+  #tela-lib { display: none; min-height: 100vh; flex-direction: column; }
+
+  /* HEADER */
+  .lib-header {
+    background: var(--azul-escuro);
+    padding: 0 20px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(15,39,68,0.2);
+  }
+  .lib-logo { font-size: 17px; font-weight: 700; color: var(--branco); white-space: nowrap; flex-shrink: 0; }
+  .lib-logo span { color: #93c5fd; }
+  .lib-search-wrap { flex: 1; max-width: 480px; margin: 0 auto; position: relative; }
+  .lib-search-ico {
+    position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--cinza-texto); font-size: 17px; pointer-events: none;
+  }
+  #search-input {
+    width: 100%; height: 40px;
+    background: rgba(255,255,255,0.95);
+    border: 1.5px solid transparent;
+    border-radius: 8px;
+    padding: 0 14px 0 42px;
+    font-size: 14px; color: var(--texto-principal); outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  #search-input:focus { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(147,197,253,0.25); }
+  #search-input::placeholder { color: #94a3b8; }
+
+  .lib-header-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+
+  .btn-header {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 13px;
+    border-radius: 7px;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: background var(--transition), opacity var(--transition);
+    white-space: nowrap;
+    border: 1px solid;
+  }
+  .btn-header-ghost {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.82);
+  }
+  .btn-header-ghost:hover { background: rgba(255,255,255,0.15); }
+  .btn-header-primary {
+    background: var(--azul-claro);
+    border-color: var(--azul-claro);
+    color: var(--branco);
+  }
+  .btn-header-primary:hover { background: var(--azul-hover); border-color: var(--azul-hover); }
+  .btn-limpar {
+    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 6px 12px; border-radius: 7px; font-size: 13px; cursor: pointer;
+    transition: background var(--transition); display: none;
+  }
+  .btn-limpar:hover { background: rgba(255,255,255,0.18); }
+
+  /* LAYOUT */
+  .lib-body { display: flex; flex: 1; }
+
+  /* SIDEBAR */
+  .lib-sidebar {
+    width: 220px; flex-shrink: 0;
+    background: var(--branco);
+    border-right: 1px solid var(--cinza-borda);
+    padding: 20px 0;
+    position: sticky; top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+  .sidebar-titulo {
+    font-size: 11px; font-weight: 600; color: var(--cinza-texto);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    padding: 0 18px 10px;
+  }
+  .sidebar-divisor { border:0; border-top:1px solid var(--cinza-borda); margin:18px 18px; }
+  .cat-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 18px; cursor: pointer; font-size: 14px;
+    color: var(--texto-secundario);
+    transition: background var(--transition), color var(--transition);
+    border-left: 3px solid transparent; user-select: none;
+  }
+  .cat-item:hover { background: var(--azul-bg); color: var(--azul-claro); }
+  .cat-item.ativa { background: var(--azul-bg); color: var(--azul-claro); border-left-color: var(--azul-claro); font-weight: 600; }
+  .cat-badge {
+    margin-left: auto;
+    background: var(--cinza-claro); color: var(--cinza-texto);
+    font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 20px;
+  }
+  .cat-item.ativa .cat-badge { background: rgba(37,99,168,0.15); color: var(--azul-claro); }
+
+  /* CONTEÚDO */
+  .lib-conteudo { flex: 1; padding: 28px 32px; min-width: 0; }
+
+  .secao-titulo {
+    font-size: 13px; font-weight: 600; color: var(--cinza-texto);
+    text-transform: uppercase; letter-spacing: 0.7px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .secao-titulo::after { content: ''; flex: 1; height: 1px; background: var(--cinza-borda); }
+
+  /* CARDS */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px; margin-bottom: 36px;
+  }
+  .card {
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 10px;
+    transition: box-shadow var(--transition), transform var(--transition);
+    animation: fadeIn 0.25s ease;
+    position: relative;
+  }
+  .card:hover { box-shadow: var(--sombra-hover); transform: translateY(-2px); }
+  .card.card-novo { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(147,197,253,0.2); }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-nome { font-size: 15px; font-weight: 600; color: var(--texto-principal); line-height: 1.3; flex: 1; }
+  .card-cat {
+    font-size: 11px; font-weight: 600; padding: 3px 9px;
+    border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+  }
+  .card-desc {
+    font-size: 13px; color: var(--texto-secundario); line-height: 1.55;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .card-menu-actions { display: flex; gap: 6px; margin-top: 2px; padding-top: 10px; border-top: 1px solid var(--cinza-claro); }
+
+  .btn-visualizar, .btn-copiar, .btn-editar, .btn-excluir {
+    flex: 1; padding: 8px 10px; border-radius: 7px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+    border: 1px solid;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .btn-visualizar { background: transparent; border-color: var(--cinza-borda); color: var(--texto-secundario); }
+  .btn-visualizar:hover { background: var(--cinza-claro); border-color: var(--cinza-texto); color: var(--texto-principal); }
+  .btn-copiar { background: var(--azul-claro); border-color: var(--azul-claro); color: var(--branco); }
+  .btn-copiar:hover { background: var(--azul-hover); border-color: var(--azul-hover); }
+  .btn-copiar:active { transform: scale(0.97); }
+  .btn-copiar.copiado { background: var(--verde); border-color: var(--verde); }
+  .btn-editar { background: transparent; border-color: var(--cinza-borda); color: var(--cinza-texto); font-size: 12px; flex: none; padding: 6px 10px; }
+  .btn-editar:hover { background: var(--azul-bg); border-color: var(--azul-claro); color: var(--azul-claro); }
+  .btn-excluir { background: transparent; border-color: #fee2e2; color: #dc2626; font-size: 12px; flex: none; padding: 6px 10px; }
+  .btn-excluir:hover { background: #fee2e2; }
+
+  .badge-usuario {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--azul-bg); color: var(--azul-claro);
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  /* RESULTADO */
+  .resultado-info { font-size: 13px; color: var(--cinza-texto); margin-bottom: 20px; }
+  .resultado-info strong { color: var(--texto-principal); }
+
+  /* EMPTY */
+  .empty-state { text-align: center; padding: 64px 24px; color: var(--cinza-texto); }
+  .empty-state-ico { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state h3 { font-size: 17px; color: var(--texto-secundario); margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; }
+
+  /* ===== MODAL VISUALIZAR ===== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,20,40,0.55);
+    z-index: 1000; align-items: center; justify-content: center;
+    padding: 24px; backdrop-filter: blur(3px);
+  }
+  .modal-overlay.aberto { display: flex; animation: fadeOverlay 0.2s ease; }
+  @keyframes fadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--branco); border-radius: var(--radius-lg);
+    width: 100%; max-width: 620px; max-height: 85vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 24px 60px rgba(15,39,68,0.24);
+    animation: slideUp 0.22s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--cinza-borda);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .modal-header-info { flex: 1; }
+  .modal-titulo-nome { font-size: 18px; font-weight: 700; color: var(--texto-principal); margin-bottom: 6px; }
+  .modal-close {
+    background: var(--cinza-claro); border: none; width: 32px; height: 32px;
+    border-radius: 8px; cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cinza-texto); flex-shrink: 0; transition: background var(--transition);
+  }
+  .modal-close:hover { background: var(--cinza-borda); }
+  .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+  .modal-conteudo {
+    font-size: 14px; color: var(--texto-secundario); line-height: 1.75;
+    white-space: pre-wrap;
+    background: var(--cinza-bg); border: 1px solid var(--cinza-borda);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .modal-footer {
+    padding: 16px 24px; border-top: 1px solid var(--cinza-borda);
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .modal-btn-copiar {
+    background: var(--azul-claro); color: var(--branco); border: none;
+    padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background var(--transition);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .modal-btn-copiar:hover { background: var(--azul-hover); }
+  .modal-btn-fechar {
+    background: transparent; color: var(--cinza-texto);
+    border: 1px solid var(--cinza-borda);
+    padding: 10px 18px; border-radius: 8px; font-size: 14px;
+    cursor: pointer; transition: background var(--transition);
+  }
+  .modal-btn-fechar:hover { background: var(--cinza-claro); }
+
+  /* ===== MODAL FORM (NOVO / EDITAR) ===== */
+  .modal-form {
+    background: var(--branco); border-radius: var(--radius-lg);
+    width: 100%; max-width: 640px; max-height: 92vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 24px 60px rgba(15,39,68,0.24);
+    animation: slideUp 0.22s ease;
+  }
+  .modal-form-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--cinza-borda);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-form-titulo { font-size: 18px; font-weight: 700; color: var(--texto-principal); }
+  .modal-form-body { padding: 20px 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 18px; }
+  .modal-form-footer {
+    padding: 16px 24px; border-top: 1px solid var(--cinza-borda);
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+
+  /* FORM FIELDS */
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label {
+    font-size: 13px; font-weight: 600; color: var(--texto-principal);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .form-label .obrigatorio { color: var(--vermelho); }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--branco);
+    border: 1.5px solid var(--cinza-borda);
+    border-radius: 8px;
+    padding: 10px 13px;
+    font-size: 14px; color: var(--texto-principal);
+    font-family: inherit;
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--azul-claro);
+    box-shadow: 0 0 0 3px rgba(37,99,168,0.1);
+  }
+  .form-input.erro, .form-select.erro, .form-textarea.erro {
+    border-color: var(--vermelho);
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+  }
+  .form-textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
+  .form-hint { font-size: 12px; color: var(--cinza-texto); }
+  .form-erro { font-size: 12px; color: var(--vermelho); display: none; }
+  .form-erro.visivel { display: block; }
+
+  /* BOTÕES FORM */
+  .btn-salvar {
+    background: var(--azul-claro); color: var(--branco); border: none;
+    padding: 11px 26px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background var(--transition);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-salvar:hover { background: var(--azul-hover); }
+  .btn-cancelar {
+    background: transparent; color: var(--cinza-texto);
+    border: 1px solid var(--cinza-borda);
+    padding: 11px 20px; border-radius: 8px; font-size: 14px;
+    cursor: pointer; transition: background var(--transition);
+  }
+  .btn-cancelar:hover { background: var(--cinza-claro); }
+
+  /* MODAL CONFIRMAÇÃO */
+  .modal-confirm {
+    background: var(--branco); border-radius: var(--radius-lg);
+    width: 100%; max-width: 400px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 24px 60px rgba(15,39,68,0.24);
+    animation: slideUp 0.22s ease;
+    text-align: center;
+  }
+  .modal-confirm-ico { font-size: 40px; margin-bottom: 12px; }
+  .modal-confirm h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .modal-confirm p { font-size: 14px; color: var(--texto-secundario); margin-bottom: 24px; }
+  .modal-confirm-btns { display: flex; gap: 10px; justify-content: center; }
+  .btn-confirmar-excluir {
+    background: var(--vermelho); color: var(--branco); border: none;
+    padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background var(--transition);
+  }
+  .btn-confirmar-excluir:hover { background: #b91c1c; }
+
+  /* CORES CATEGORIAS */
+  .cat-cor-saudacao        { background: #dbeafe; color: #1e40af; }
+  .cat-cor-breakup         { background: #fee2e2; color: #991b1b; }
+  .cat-cor-sem-demanda     { background: #fef3c7; color: #92400e; }
+  .cat-cor-rastreio        { background: #d1fae5; color: #065f46; }
+  .cat-cor-confirmacao     { background: #ede9fe; color: #5b21b6; }
+  .cat-cor-followup        { background: #e0f2fe; color: #0c4a6e; }
+  .cat-cor-posvenda        { background: #dcfce7; color: #14532d; }
+  .cat-cor-negociacao      { background: #fef9c3; color: #713f12; }
+  .cat-cor-gatilhos        { background: #fce7f3; color: #831843; }
+  .cat-cor-objecoes        { background: #ffedd5; color: #7c2d12; }
+  .cat-cor-recuperacao     { background: #f0fdf4; color: #166534; }
+  .cat-cor-outros          { background: #f1f5f9; color: #334155; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--verde); color: var(--branco);
+    padding: 12px 20px; border-radius: 9px; font-size: 14px; font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 3000;
+    transform: translateY(20px); opacity: 0;
+    transition: all 0.25s ease;
+    display: flex; align-items: center; gap: 8px; max-width: 360px;
+  }
+  .toast.visivel { transform: translateY(0); opacity: 1; }
+  .toast.erro { background: var(--vermelho); }
+  .toast.aviso { background: #d97706; }
+
+  /* INPUT FILE OCULTO */
+  #input-importar { display: none; }
+
+  /* RESPONSIVO */
+  @media (max-width: 768px) {
+    .lib-sidebar { display: none; }
+    .lib-conteudo { padding: 20px 16px; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .bv-stats { gap: 24px; }
+    .lib-header { padding: 0 12px; gap: 8px; }
+    .btn-header span.label { display: none; }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+#status-banco-piveta{
+  position:fixed;bottom:14px;right:14px;z-index:9999;
+  padding:7px 11px;border-radius:999px;
+  font:600 11px/1.2 Arial,sans-serif;
+  background:#f3f4f6;color:#6b7280;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+#status-banco-piveta.online{background:#dcfce7;color:#166534}
+#status-banco-piveta.offline{background:#fef2f2;color:#991b1b}
+</style>
+
+
+<style>
+/* =========================================================
+   TEMA NEON — BIBLIOTECA PIVETA
+   Visual: preto + roxo + azul + laranja + amarelo + branco
+   ========================================================= */
+
+:root{
+  --neon-purple:#a855f7;
+  --neon-purple-2:#7c3aed;
+  --neon-blue:#22d3ee;
+  --neon-blue-2:#2563eb;
+  --neon-orange:#ff7a18;
+  --neon-yellow:#ffe600;
+  --dark-0:#050509;
+  --dark-1:#090912;
+  --dark-2:#10101c;
+  --dark-3:#171725;
+  --dark-border:rgba(255,255,255,.09);
+  --white-soft:#f5f7ff;
+  --muted-dark:#9da0b5;
+
+  --azul-escuro:#07070d;
+  --azul-medio:#10101b;
+  --azul-claro:#7c3aed;
+  --azul-hover:#a855f7;
+  --azul-bg:#f0e9ff;
+  --cinza-bg:#08080e;
+  --cinza-claro:#e9e9f0;
+  --cinza-borda:#252534;
+  --cinza-texto:#85879a;
+  --texto-principal:#171722;
+  --texto-secundario:#5e6070;
+  --sombra:0 8px 28px rgba(0,0,0,.18);
+  --sombra-hover:0 12px 35px rgba(124,58,237,.18);
+}
+
+body{
+  background:#08080e;
+}
+
+/* ---------- HOME ---------- */
+#tela-bv{
+  background:
+    radial-gradient(circle at 50% 45%, rgba(124,58,237,.16), transparent 27%),
+    radial-gradient(circle at 18% 20%, rgba(34,211,238,.08), transparent 23%),
+    radial-gradient(circle at 85% 78%, rgba(255,122,24,.08), transparent 22%),
+    #050509;
+  color:#fff;
+  isolation:isolate;
+}
+
+#tela-bv::before{
+  width:520px;height:520px;
+  top:-260px;right:-160px;
+  background:radial-gradient(circle,rgba(168,85,247,.22),transparent 68%);
+  filter:blur(12px);
+  animation:orbFloat 9s ease-in-out infinite alternate;
+}
+
+#tela-bv::after{
+  width:420px;height:420px;
+  bottom:-210px;left:-150px;
+  background:radial-gradient(circle,rgba(34,211,238,.13),transparent 68%);
+  filter:blur(12px);
+  animation:orbFloat 11s ease-in-out infinite alternate-reverse;
+}
+
+.neon-grid{
+  position:absolute;inset:0;opacity:.28;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(168,85,247,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(34,211,238,.07) 1px,transparent 1px);
+  background-size:55px 55px;
+  mask-image:linear-gradient(to bottom,transparent,#000 18%,#000 78%,transparent);
+}
+
+.neon-orb{
+  position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px);
+  opacity:.75;
+}
+.orb-roxo{width:12px;height:12px;top:24%;left:14%;background:var(--neon-purple);box-shadow:0 0 18px var(--neon-purple),0 0 55px var(--neon-purple);animation:floatDot 5s ease-in-out infinite;}
+.orb-azul{width:8px;height:8px;top:32%;right:16%;background:var(--neon-blue);box-shadow:0 0 15px var(--neon-blue),0 0 45px var(--neon-blue);animation:floatDot 7s ease-in-out infinite 1s;}
+.orb-laranja{width:9px;height:9px;bottom:26%;right:26%;background:var(--neon-orange);box-shadow:0 0 16px var(--neon-orange),0 0 48px var(--neon-orange);animation:floatDot 6s ease-in-out infinite 2s;}
+
+.bv-topbar{
+  width:100%;padding:27px 42px;display:flex;align-items:center;justify-content:space-between;
+  z-index:2;
+}
+.bv-logo{
+  padding:0;
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:2px;
+  color:#fff;
+}
+.bv-logo b{
+  color:#c084fc;
+  text-shadow:0 0 14px rgba(168,85,247,.65);
+}
+.logo-mark{
+  color:var(--neon-yellow);
+  margin-right:8px;
+  text-shadow:0 0 12px rgba(255,230,0,.65);
+}
+.bv-top-tag{
+  border:1px solid rgba(168,85,247,.32);
+  color:#a9aabd;
+  background:rgba(124,58,237,.07);
+  border-radius:999px;
+  padding:7px 12px;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1.7px;
+  backdrop-filter:blur(8px);
+}
+
+.bv-centro{
+  padding:25px 24px 20px;
+}
+
+.bv-kicker{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:25px;
+  color:#8587a0;
+  font-size:9px;font-weight:800;letter-spacing:2.5px;
+}
+.bv-kicker span{
+  width:28px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--neon-purple));
+  box-shadow:0 0 8px rgba(168,85,247,.5);
+}
+.bv-kicker span:last-child{
+  background:linear-gradient(90deg,var(--neon-blue),transparent);
+}
+
+.bv-icone{
+  width:82px;height:82px;
+  margin:0 auto 26px;
+  border:1px solid rgba(168,85,247,.45);
+  border-radius:24px;
+  background:
+    linear-gradient(145deg,rgba(168,85,247,.18),rgba(34,211,238,.05));
+  box-shadow:
+    inset 0 0 30px rgba(124,58,237,.12),
+    0 0 30px rgba(124,58,237,.12);
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  transform:rotate(-3deg);
+}
+.bv-icone::before{
+  content:"";
+  position:absolute;inset:8px;border:1px solid rgba(34,211,238,.18);
+  border-radius:18px;
+}
+.icone-inner{
+  color:#fff;font-size:31px;transform:rotate(3deg);
+  text-shadow:0 0 10px var(--neon-purple),0 0 28px rgba(34,211,238,.55);
+}
+
+.bv-titulo{
+  max-width:760px;
+  font-size:clamp(34px,6vw,64px);
+  line-height:1.05;
+  letter-spacing:-2px;
+  margin-bottom:18px;
+  font-weight:800;
+  text-shadow:0 2px 30px rgba(0,0,0,.3);
+}
+.bv-titulo strong{
+  color:#c084fc;
+  background:linear-gradient(90deg,#c084fc 0%,#a855f7 40%,#22d3ee 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:none;
+}
+
+.bv-subtitulo{
+  max-width:610px;
+  font-size:15px;
+  line-height:1.7;
+  color:#9698aa;
+  margin-bottom:31px;
+}
+
+.bv-btn{
+  position:relative;overflow:hidden;
+  background:linear-gradient(100deg,#7c3aed,#a855f7 52%,#7c3aed);
+  background-size:200% 100%;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;
+  padding:14px 19px 14px 22px;
+  min-width:218px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:1.6px;
+  box-shadow:0 0 22px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.18);
+  transition:.25s ease;
+}
+.bv-btn span{margin-right:18px;}
+.bv-btn b{color:var(--neon-yellow);font-size:17px;text-shadow:0 0 10px rgba(255,230,0,.7);}
+.bv-btn:hover{
+  transform:translateY(-3px);
+  background-position:100% 0;
+  box-shadow:0 8px 35px rgba(124,58,237,.4),0 0 15px rgba(168,85,247,.25);
+}
+.bv-btn::after{
+  content:"";position:absolute;top:-60%;left:-70%;width:40%;height:220%;
+  background:rgba(255,255,255,.16);transform:rotate(20deg);
+  transition:.6s ease;
+}
+.bv-btn:hover::after{left:130%;}
+
+.bv-feature-row{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+  margin-top:27px;
+}
+.bv-feature{
+  display:flex;align-items:center;gap:7px;
+  padding:8px 11px;
+  border:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.025);
+  border-radius:8px;
+  color:#777a90;
+  font-size:10px;font-weight:600;
+  backdrop-filter:blur(8px);
+}
+.bv-feature i{font-style:normal;color:var(--neon-blue);font-size:13px;text-shadow:0 0 8px rgba(34,211,238,.65);}
+
+.bv-bottom{
+  width:100%;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 42px 25px;z-index:2;
+}
+.bv-stats{gap:34px;margin-top:22px;padding-bottom:0;}
+.bv-stat-num{font-size:22px;color:#f8f8ff;text-shadow:0 0 12px rgba(168,85,247,.2);}
+.bv-stat-label{font-size:8px;letter-spacing:1.5px;color:#66697d;}
+.bv-live{
+  color:#6e7185;font-size:8px;font-weight:800;letter-spacing:1.4px;
+}
+.bv-live span{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.8);
+  margin-right:5px;animation:pulse 1.7s infinite;
+}
+
+/* ---------- BIBLIOTECA ---------- */
+#tela-lib{
+  background:
+    radial-gradient(circle at 80% 0%,rgba(124,58,237,.08),transparent 24%),
+    #09090f;
+}
+
+.lib-header{
+  height:68px;
+  background:rgba(7,7,13,.92);
+  border-bottom:1px solid rgba(168,85,247,.14);
+  box-shadow:0 4px 25px rgba(0,0,0,.35);
+  backdrop-filter:blur(16px);
+}
+.lib-logo{
+  font-size:14px;letter-spacing:1px;
+}
+.lib-logo span{
+  color:#c084fc;
+  text-shadow:0 0 10px rgba(168,85,247,.5);
+}
+#search-input{
+  height:40px;
+  background:#11111b;
+  color:#f7f7ff;
+  border:1px solid #28283a;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+#search-input:focus{
+  border-color:#8b5cf6;
+  box-shadow:0 0 0 3px rgba(139,92,246,.12),0 0 18px rgba(124,58,237,.12);
+}
+#search-input::placeholder{color:#6d6f82;}
+.lib-search-ico{color:#77798e;}
+
+.btn-header-ghost{
+  background:#11111b;border-color:#29293a;color:#aaaabd;
+}
+.btn-header-ghost:hover{background:#181824;border-color:#44445b;color:#fff;}
+.btn-header-primary{
+  background:linear-gradient(100deg,#7c3aed,#a855f7);
+  border-color:#8b5cf6;
+  box-shadow:0 0 16px rgba(124,58,237,.18);
+}
+.btn-header-primary:hover{
+  background:linear-gradient(100deg,#8b5cf6,#c084fc);
+  border-color:#a855f7;
+}
+
+.lib-sidebar{
+  background:#0c0c14;
+  border-right:1px solid #20202e;
+}
+.sidebar-titulo{color:#77798e;}
+.cat-item{color:#9597aa;}
+.cat-item:hover{
+  background:rgba(124,58,237,.08);color:#c084fc;
+}
+.cat-item.ativa{
+  background:linear-gradient(90deg,rgba(124,58,237,.14),rgba(124,58,237,.03));
+  color:#c084fc;border-left-color:#a855f7;
+  box-shadow:inset -15px 0 25px -25px rgba(168,85,247,.8);
+}
+.cat-badge{background:#181824;color:#74768a;}
+.cat-item.ativa .cat-badge{background:rgba(168,85,247,.14);color:#c084fc;}
+
+.lib-conteudo{background:transparent;}
+.secao-titulo{color:#76788c;}
+.secao-titulo::after{background:#242432;}
+.resultado-info{color:#74768a;}
+.resultado-info strong{color:#ddddeb;}
+
+.card{
+  background:linear-gradient(145deg,#11111a,#0d0d15);
+  border-color:#252536;
+  box-shadow:0 6px 20px rgba(0,0,0,.2);
+}
+.card:hover{
+  border-color:rgba(168,85,247,.42);
+  box-shadow:0 12px 35px rgba(0,0,0,.3),0 0 22px rgba(124,58,237,.08);
+  transform:translateY(-3px);
+}
+.card.card-novo{
+  border-color:#22d3ee;
+  box-shadow:0 0 0 2px rgba(34,211,238,.12),0 0 25px rgba(34,211,238,.12);
+}
+.card-nome{color:#f1f1fa;}
+.card-desc{color:#85879a;}
+.card-menu-actions{border-top-color:#222231;}
+.btn-visualizar{
+  border-color:#2a2a3b;color:#9b9dae;background:#12121d;
+}
+.btn-visualizar:hover{
+  background:#191925;border-color:#4a4a61;color:#fff;
+}
+.btn-copiar{
+  background:linear-gradient(100deg,#2563eb,#7c3aed);
+  border-color:#6366f1;
+}
+.btn-copiar:hover{
+  background:linear-gradient(100deg,#3b82f6,#a855f7);
+  border-color:#8b5cf6;
+}
+.btn-editar{
+  border-color:#2a2a3b;color:#77798d;background:#101019;
+}
+.btn-editar:hover{
+  background:rgba(124,58,237,.1);border-color:#7c3aed;color:#c084fc;
+}
+.btn-excluir{border-color:rgba(239,68,68,.2);color:#fb7185;background:#111019;}
+.btn-excluir:hover{background:rgba(239,68,68,.12);}
+.badge-usuario{
+  background:rgba(34,211,238,.08);color:#67e8f9;border:1px solid rgba(34,211,238,.12);
+}
+
+/* ---------- MODAIS ---------- */
+.modal-overlay{
+  background:rgba(2,2,7,.76);
+  backdrop-filter:blur(9px);
+}
+.modal,.modal-form{
+  background:#10101a;
+  border:1px solid #29293b;
+  box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 45px rgba(124,58,237,.08);
+}
+.modal-header,.modal-form-header{
+  border-bottom-color:#252535;
+}
+.modal-titulo-nome,.modal-form-titulo{color:#f6f6ff;}
+.modal-body,.modal-form-body{color:#c4c5d4;}
+.modal-footer,.modal-form-footer{border-top-color:#252535;}
+.modal-close{color:#77798c;}
+.modal-close:hover{background:#1d1d2a;color:#fff;}
+.form-label{color:#aeb0c0;}
+.form-input,.form-select,.form-textarea{
+  background:#0b0b12!important;
+  border-color:#29293a!important;
+  color:#f2f2fb!important;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{
+  border-color:#8b5cf6!important;
+  box-shadow:0 0 0 3px rgba(139,92,246,.12)!important;
+}
+.modal-btn-fechar{
+  background:#171722!important;border-color:#2b2b3c!important;color:#aaaabd!important;
+}
+.modal-btn-copiar{
+  background:linear-gradient(100deg,#2563eb,#7c3aed)!important;
+  border-color:#6366f1!important;
+}
+
+/* ---------- ANIMAÇÕES ---------- */
+@keyframes orbFloat{
+  from{transform:translate3d(0,0,0) scale(1);}
+  to{transform:translate3d(-25px,30px,0) scale(1.08);}
+}
+@keyframes floatDot{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-18px) scale(1.25);}
+}
+@keyframes pulse{
+  0%,100%{opacity:.6;transform:scale(1);}
+  50%{opacity:1;transform:scale(1.35);}
+}
+
+/* ---------- STATUS DO BANCO ---------- */
+#status-banco-piveta{
+  background:rgba(10,10,18,.86)!important;
+  color:#888a9d!important;
+  border:1px solid #29293b;
+  backdrop-filter:blur(10px);
+  box-shadow:0 4px 20px rgba(0,0,0,.35)!important;
+}
+#status-banco-piveta.online{
+  color:#67e8f9!important;
+  background:rgba(8,30,35,.82)!important;
+  border-color:rgba(34,211,238,.2);
+}
+#status-banco-piveta.offline{
+  color:#fbbf24!important;
+  background:rgba(40,28,5,.82)!important;
+  border-color:rgba(245,158,11,.2);
+}
+
+/* ---------- RESPONSIVO ---------- */
+@media (max-width:700px){
+  .bv-topbar{padding:20px 20px;}
+  .bv-top-tag{display:none;}
+  .bv-titulo{font-size:38px;letter-spacing:-1.4px;}
+  .bv-subtitulo{font-size:14px;}
+  .bv-bottom{padding:0 20px 20px;align-items:flex-end;}
+  .bv-stats{gap:20px;}
+  .bv-feature-row{gap:6px;}
+  .bv-feature{font-size:9px;}
+  .lib-header{gap:8px;padding:0 12px;}
+  .lib-header-right .label{display:none;}
+  .lib-sidebar{width:175px;}
+  .lib-conteudo{padding:20px 16px;}
+}
+</style>
+
+<style>[hidden] { display: none !important; }</style>
+<style>
+.lib-header { position:relative; z-index:20; overflow:visible; }
+.perfil-wrap { position:relative; margin-left:8px; }
+.perfil-avatar { width:42px; height:42px; min-width:42px; border-radius:50%; border:1px solid #c084fc; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-size:14px; font-weight:800; letter-spacing:.5px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.perfil-avatar:focus-visible,.perfil-menu button:focus-visible { outline:2px solid #fff; outline-offset:3px; }
+.perfil-menu { position:absolute; right:0; top:52px; width:min(290px,calc(100vw - 32px)); border:1px solid #353047; border-radius:14px; background:#17131f; box-shadow:0 16px 40px #0008; padding:8px; text-align:left; }
+.perfil-menu-info { padding:12px 10px 14px; border-bottom:1px solid #353047; margin-bottom:6px; }
+#usuario-logado { display:block; color:#fff !important; font-size:14px; line-height:1.5; overflow-wrap:anywhere; }
+#perfil-papel,#perfil-email { display:block; color:#c6bfd4; font-size:14px; line-height:1.6; overflow-wrap:anywhere; }
+.perfil-menu button { width:100%; display:block; background:transparent; border:0; border-radius:8px; padding:11px 10px; color:#fff; text-align:left; font-size:14px; cursor:pointer; }
+.perfil-menu button:hover { background:#30243f; }
+.perfil-menu .perfil-sair { color:#fca5a5; border-top:1px solid #353047; border-radius:0 0 8px 8px; margin-top:5px; }
+.perfil-dialog { width:min(420px,calc(100vw - 32px)); margin:auto; padding:26px; border:1px solid #514060; border-radius:16px; background:#17131f; color:#fff; box-shadow:0 20px 60px #0009; }
+.perfil-dialog::backdrop { background:#000a; backdrop-filter:blur(3px); }
+.perfil-dialog h2 { font-size:18px; color:#fff; margin:0 0 12px; }
+.perfil-dialog p,.perfil-dialog label { font-size:14px; line-height:1.6; color:#e2dcea; }
+.perfil-dialog input { display:block; width:100%; padding:12px; margin:6px 0 16px; border:1px solid #514060; border-radius:8px; background:#fff; color:#000; font-size:14px; }
+.perfil-dialog input[readonly] { background:#ece8f2; }
+.perfil-dialog-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
+.perfil-dialog-actions button { padding:10px 14px; border:1px solid #6f508c; border-radius:8px; color:#fff; background:#30243f; font-size:14px; cursor:pointer; }
+.perfil-dialog-actions button[type=submit] { background:#7c3aed; }
+#perfil-erro { color:#fca5a5; min-height:20px; }
+</style>
+<style>
+.card-rodape { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-top:14px; padding-top:12px; border-top:1px solid #353047; color:#fff; font-size:14px; }
+.card-autor { color:#fff !important; line-height:1.5; overflow-wrap:anywhere; min-width:0; }
+.card-copias { color:#fff; white-space:nowrap; margin-left:auto; font-size:14px; }
+.secao-vazia { color:#c6bfd4; font-size:14px; margin:0 0 24px; }
+</style>
+</head>
+<body>
+
+<!-- TELA 1 -->
+<div id="tela-bv">
+  <div class="neon-grid"></div>
+  <div class="neon-orb orb-roxo"></div>
+  <div class="neon-orb orb-azul"></div>
+  <div class="neon-orb orb-laranja"></div>
+
+  <header class="bv-topbar">
+    <div class="bv-logo">
+      <span class="logo-mark">✦</span>
+      BIBLIOTECA <b>PIVETA</b>
+    </div>
+    <div class="bv-top-tag">CENTRAL COMERCIAL</div>
+  </header>
+
+  <div class="bv-centro">
+    <div class="bv-kicker"><span></span> CENTRAL DE TEMPLATES COMERCIAIS <span></span></div>
+
+    <div class="bv-icone">
+      <div class="icone-inner">✦</div>
+    </div>
+
+    <h1 class="bv-titulo">
+      Suas melhores mensagens.<br>
+      <strong>Em um só lugar.</strong>
+    </h1>
+
+    <p class="bv-subtitulo">
+      Templates para atendimento, prospecção, follow-up e relacionamento —
+      criados pela equipe e compartilhados com toda a Piveta.
+    </p>
+
+    <form id="login-form" onsubmit="fazerLogin(event)" style="width:min(360px,90vw);margin:0 auto;text-align:left">
+      <label for="login-email">E-mail</label>
+      <input id="login-email" type="email" autocomplete="username" required style="display:block;width:100%;padding:12px;margin:6px 0 14px;color:#000;font-size:14px;border:1px solid #ccc;border-radius:8px">
+      <label for="login-senha">Senha</label>
+      <input id="login-senha" type="password" autocomplete="current-password" required style="display:block;width:100%;padding:12px;margin:6px 0 14px;color:#000;font-size:14px;border:1px solid #ccc;border-radius:8px">
+      <button id="login-btn" class="bv-btn" type="submit" style="width:100%"><span>ENTRAR NA BIBLIOTECA</span><b>→</b></button>
+      <p id="login-erro" role="alert" style="color:#b91c1c;font-size:14px;margin-top:12px"></p>
+      <p style="font-size:14px">Acesso exclusivo para contas cadastradas pela empresa.</p>
+    </form>
+
+    <div class="bv-feature-row">
+      <div class="bv-feature"><i>⌕</i><span>Encontre rápido</span></div>
+      <div class="bv-feature"><i>＋</i><span>Crie e compartilhe</span></div>
+      <div class="bv-feature"><i>↗</i><span>Copie e venda</span></div>
+    </div>
+  </div>
+
+  <div class="bv-bottom">
+    <div class="bv-stats">
+      <div class="bv-stat">
+        <div class="bv-stat-num" id="stat-total">0</div>
+        <div class="bv-stat-label">Templates</div>
+      </div>
+      <div class="bv-stat">
+        <div class="bv-stat-num">14</div>
+        <div class="bv-stat-label">Categorias</div>
+      </div>
+      <div class="bv-stat">
+        <div class="bv-stat-num">∞</div>
+        <div class="bv-stat-label">Possibilidades</div>
+      </div>
+    </div>
+    <div class="bv-live"><span></span> BIBLIOTECA PIVETA</div>
+  </div>
+</div>
+
+<!-- TELA 2 -->
+<div id="tela-lib">
+  <header class="lib-header">
+    <div class="lib-logo">Biblioteca <span>Piveta</span></div>
+    <div class="lib-search-wrap">
+      <span class="lib-search-ico">🔍</span>
+      <input type="text" id="search-input" placeholder="Pesquisar templates…" oninput="pesquisar()">
+    </div>
+    <div class="lib-header-right">
+      <button class="btn-limpar" id="btn-limpar" onclick="limparFiltros()">✕ Limpar</button>
+      <button class="btn-header btn-header-primary" onclick="abrirFormNovo()"><span>＋</span><span class="label"> Novo Template</span></button>
+      <div class="perfil-wrap" id="perfil-wrap">
+        <button class="perfil-avatar" id="perfil-avatar" type="button" aria-label="Abrir menu do usuário" aria-expanded="false" aria-controls="perfil-menu" onclick="alternarMenuUsuario()"><span id="perfil-iniciais"></span></button>
+        <div class="perfil-menu" id="perfil-menu" hidden>
+          <div class="perfil-menu-info"><strong id="usuario-logado"></strong><span id="perfil-papel"></span><span id="perfil-email"></span></div>
+          <button type="button" onclick="abrirConfiguracoesUsuario()">Configurações do usuário</button>
+          <button type="button" data-admin hidden onclick="fecharMenuUsuario();triggerImportar()">Importar templates</button>
+          <button type="button" data-admin hidden onclick="fecharMenuUsuario();exportarBiblioteca()">Exportar templates</button>
+          <button type="button" class="perfil-sair" onclick="sairBiblioteca()">Sair da conta</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <input type="file" id="input-importar" accept=".json" onchange="importarBiblioteca(event)">
+
+  <div class="lib-body">
+    <aside class="lib-sidebar">
+      <div id="lista-categorias"></div>
+    </aside>
+    <main class="lib-conteudo" id="conteudo-principal"></main>
+  </div>
+</div>
+
+
+<dialog id="perfil-dialog" class="perfil-dialog" aria-labelledby="perfil-dialog-titulo" oncancel="cancelarPerfil(event)">
+  <form id="perfil-form" onsubmit="salvarPerfilUsuario(event)">
+    <h2 id="perfil-dialog-titulo">Configurações do usuário</h2><br>
+    <p id="perfil-dialog-descricao">Atualize o nome exibido nos próximos templates.</p>
+    <label for="perfil-conta-email">E-mail da conta</label>
+    <input id="perfil-conta-email" type="email" readonly>
+    <label for="perfil-nome-input">Nome de usuário</label>
+    <input id="perfil-nome-input" type="text" maxlength="80" autocomplete="name" placeholder="Ex.: Jhenifer Souza" required>
+    <p id="perfil-erro" role="alert"></p>
+    <div class="perfil-dialog-actions"><button type="button" id="perfil-cancelar" onclick="cancelarPerfil()">Cancelar</button><button id="perfil-salvar" type="submit">Salvar nome</button></div>
+  </form>
+</dialog>
+
+<!-- MODAL VISUALIZAR -->
+<div class="modal-overlay" id="modal-overlay" onclick="fecharModalOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <div class="modal-titulo-nome" id="modal-nome"></div>
+        <span id="modal-cat-badge" class="card-cat"></span>
+      </div>
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-conteudo" id="modal-conteudo"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn-fechar" onclick="fecharModal()">Fechar</button>
+      <button class="modal-btn-copiar" id="modal-btn-copiar" onclick="copiarDoModal()">📋 Copiar template</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FORM NOVO/EDITAR -->
+<div class="modal-overlay" id="modal-form-overlay" onclick="fecharFormOverlay(event)">
+  <div class="modal-form">
+    <div class="modal-form-header">
+      <div class="modal-form-titulo" id="form-titulo-modal">Novo Template</div>
+      <button class="modal-close" onclick="fecharForm()">✕</button>
+    </div>
+    <div class="modal-form-body">
+      <div class="form-group">
+        <label class="form-label">Nome do Template <span class="obrigatorio">*</span></label>
+        <input class="form-input" id="f-titulo" type="text" placeholder="Ex: Primeiro contato — apresentação rápida" maxlength="120">
+        <span class="form-erro" id="err-titulo">Preencha o nome do template.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoria <span class="obrigatorio">*</span></label>
+        <select class="form-select" id="f-categoria">
+          <option value="">Selecione uma categoria…</option>
+          <option>Breakup</option>
+          <option>Confirmação de Compra</option>
+          <option>Encerramento de Parceria</option>
+          <option>Follow-up</option>
+          <option>Gatilhos Mentais</option>
+          <option>Negociação</option>
+          <option>Objeções</option>
+          <option>Outros</option>
+          <option>Pós-venda</option>
+          <option>Rastreio</option>
+          <option>Recuperação de Clientes</option>
+          <option>Saudação</option>
+          <option>Sem Demanda</option>
+          <option>Troca e Devolução</option>
+</select>
+        <span class="form-erro" id="err-categoria">Selecione uma categoria.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição curta <span class="obrigatorio">*</span></label>
+        <input class="form-input" id="f-descricao" type="text" placeholder="Ex: Mensagem de apresentação para novos leads" maxlength="200">
+        <span class="form-erro" id="err-descricao">Preencha a descrição.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Palavras-chave</label>
+        <input class="form-input" id="f-palavras" type="text" placeholder="Ex: apresentação, primeiro contato, lead novo">
+        <span class="form-hint">Separe por vírgula. Usadas na busca.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Conteúdo do Template <span class="obrigatorio">*</span></label>
+        <textarea class="form-textarea" id="f-conteudo" placeholder="Cole ou escreva aqui o texto completo do template…" style="min-height:180px;"></textarea>
+        <span class="form-erro" id="err-conteudo">Preencha o conteúdo do template.</span>
+      </div>
+    </div>
+    <div class="modal-form-footer">
+      <button class="btn-cancelar" onclick="fecharForm()">Cancelar</button>
+      <button class="btn-salvar" onclick="salvarTemplate()">💾 Salvar Template</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR EXCLUSÃO -->
+<div class="modal-overlay" id="modal-confirm-overlay" onclick="fecharConfirmOverlay(event)">
+  <div class="modal-confirm">
+    <div class="modal-confirm-ico">🗑️</div>
+    <h3>Excluir template?</h3>
+    <p id="confirm-msg">Esta ação não pode ser desfeita.</p>
+    <div class="modal-confirm-btns">
+      <button class="btn-cancelar" onclick="fecharConfirm()">Cancelar</button>
+      <button class="btn-confirmar-excluir" onclick="confirmarExcluir()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== DADOS PADRÃO ===== */
+const STORAGE_KEY = "piveta_templates";
+
+const templatesPadrao = [
+  { id: 1, titulo: "Primeiro contato — apresentação rápida", categoria: "Saudação", descricao: "Mensagem de apresentação inicial para novos leads, com tom amigável e direto.", palavrasChave: ["apresentação","primeiro contato","lead novo","saudação inicial"], conteudo: "Olá, [Nome]! Tudo bem? 😊\n\nMeu nome é [Seu Nome] e sou consultor(a) de vendas da Piveta.\n\nEntrei em contato porque acredito que temos uma solução que pode fazer toda a diferença para o seu negócio. Seria ótimo bater um papo rápido de 10 minutinhos para entender melhor sua necessidade.\n\nQuando seria um bom horário para você?\n\nQualquer dúvida, estou à disposição! 🚀", recente: true, sugerido: true, usuario: false },
+  { id: 2, titulo: "Saudação após indicação", categoria: "Saudação", descricao: "Abordagem inicial para leads que chegaram por indicação de outro cliente.", palavrasChave: ["indicação","referência","saudação","boas-vindas"], conteudo: "Oi, [Nome]! Boa tarde! 😊\n\nRecebi seu contato através do [Nome do Indicador], que falou muito bem de você!\n\nMeu nome é [Seu Nome], da Piveta. Fico muito feliz com a indicação e adoraria conhecer melhor o que você precisa para ver como podemos te ajudar.\n\nTem 15 minutos essa semana para conversarmos?", recente: true, sugerido: false, usuario: false },
+  { id: 3, titulo: "Breakup — última tentativa", categoria: "Breakup", descricao: "Mensagem final antes de encerrar o acompanhamento de um lead sem retorno.", palavrasChave: ["breakup","sem retorno","última tentativa","encerrar contato"], conteudo: "Olá, [Nome]. Tudo bem?\n\nTentei entrar em contato algumas vezes nas últimas semanas, mas entendo que sua agenda pode estar bem corrida.\n\nVou ser direto: este será meu último contato por enquanto. Se o momento não for ideal agora, tudo bem! Caso mude de ideia ou queira retomar a conversa no futuro, estarei à disposição.\n\nAgradeço pelo tempo e te desejo muito sucesso! 🤝\n\nUm abraço,\n[Seu Nome]", recente: false, sugerido: true, usuario: false },
+  { id: 4, titulo: "Breakup com oferta de saída", categoria: "Breakup", descricao: "Versão alternativa de breakup que oferece ao lead uma condição especial de saída.", palavrasChave: ["breakup","oferta final","encerrar","condição especial"], conteudo: "Oi, [Nome]! Como você está?\n\nPercebo que não conseguimos alinhar uma conversa até agora e não quero tomar mais o seu tempo sem necessidade.\n\nAntes de encerrar meu acompanhamento, quero deixar uma última proposta: se surgir interesse, temos uma condição especial válida até [Data] que reservei para você.\n\nCaso não tenha interesse, tudo bem também! É só me avisar que tiro o seu contato da minha lista. 😊\n\nAguardo seu retorno,\n[Seu Nome]", recente: false, sugerido: false, usuario: false },
+  { id: 5, titulo: "Cliente sem demanda no momento", categoria: "Sem Demanda", descricao: "Resposta elegante quando o cliente informa não ter necessidade agora.", palavrasChave: ["sem demanda","sem necessidade","não precisa","sem interesse agora","prospect sem demanda"], conteudo: "Entendo perfeitamente, [Nome]! 😊\n\nFico feliz que tenha me dado esse retorno, é muito importante pra mim.\n\nPosso te perguntar: existe alguma previsão de quando você voltará a avaliar soluções nessa área? Assim posso te contatar no momento certo, sem te incomodar fora de hora.\n\nFico à disposição! Qualquer mudança no cenário, pode me chamar à vontade. 🚀", recente: true, sugerido: true, usuario: false },
+  { id: 6, titulo: "Nurturing — sem demanda imediata", categoria: "Sem Demanda", descricao: "Mensagem de nutrição para manter relacionamento com leads sem demanda atual.", palavrasChave: ["sem demanda","nurturing","manter contato","relacionamento"], conteudo: "Olá, [Nome]! Tudo bem?\n\nPassando somente para te deixar um conteúdo que achei super relevante para o seu segmento: [link ou descrição do conteúdo].\n\nSei que agora não é o momento ideal para você, mas fico feliz em manter contato e ser útil quando precisar.\n\nQualquer dúvida ou curiosidade, pode me acionar! 😊", recente: false, sugerido: false, usuario: false },
+  { id: 7, titulo: "Rastreio de proposta enviada", categoria: "Rastreio", descricao: "Acompanhamento após envio de proposta comercial, buscando retorno do lead.", palavrasChave: ["rastreio","follow proposta","proposta enviada","acompanhamento proposta"], conteudo: "Olá, [Nome]! Como vai?\n\nNa semana passada te enviei nossa proposta e gostaria de saber se você teve a oportunidade de analisá-la.\n\nTenho certeza que conseguimos montar algo bem adequado à sua realidade. Caso tenha alguma dúvida ou queira ajustar algum ponto, estou à disposição para conversarmos.\n\nQuando seria um bom momento para falarmos? 📞", recente: true, sugerido: false, usuario: false },
+  { id: 8, titulo: "Rastreio de orçamento em aberto", categoria: "Rastreio", descricao: "Mensagem para verificar situação de orçamento enviado há mais de 5 dias.", palavrasChave: ["rastreio","orçamento","cotação","sem retorno","verificação"], conteudo: "Oi, [Nome]! Tudo bem?\n\nEnviei o orçamento há alguns dias e não tive retorno ainda. Quero me certificar de que chegou corretamente e que você está com todas as informações necessárias.\n\nSe precisar de alguma adaptação ou tiver qualquer dúvida, é só me falar. Estou aqui para facilitar ao máximo! 😊\n\nAguardo seu retorno,\n[Seu Nome]", recente: false, sugerido: true, usuario: false },
+  { id: 9, titulo: "Confirmação de pedido realizado", categoria: "Confirmação de Compra", descricao: "Mensagem de confirmação imediata após o fechamento de uma venda.", palavrasChave: ["confirmação","pedido confirmado","compra realizada","fechamento"], conteudo: "Olá, [Nome]! 🎉\n\nSeu pedido foi confirmado com sucesso! Aqui estão os detalhes:\n\n📦 Produto/Serviço: [Descrição]\n💰 Valor: R$ [Valor]\n📅 Prazo estimado: [Prazo]\n🔢 Número do pedido: [Número]\n\nAgora nosso time irá [próximo passo do processo]. Te mantenho informado(a) sobre cada etapa.\n\nMuito obrigado pela confiança na Piveta! 💙", recente: false, sugerido: true, usuario: false },
+  { id: 10, titulo: "Confirmação de reunião agendada", categoria: "Confirmação de Compra", descricao: "Confirmação de reunião de fechamento ou apresentação agendada.", palavrasChave: ["confirmação","reunião","agendamento","meeting"], conteudo: "Olá, [Nome]! Tudo certo? 😊\n\nPassando para confirmar nossa conversa:\n\n📅 Data: [Data]\n🕐 Horário: [Horário]\n📍 Local/Link: [Local ou link da reunião]\n\nQualquer imprevisto, é só me avisar com antecedência para reagendarmos sem problema.\n\nAté lá! 🚀\n[Seu Nome]", recente: true, sugerido: false, usuario: false },
+  { id: 11, titulo: "Follow-up pós reunião", categoria: "Follow-up", descricao: "Mensagem enviada logo após uma reunião, reforçando pontos combinados.", palavrasChave: ["follow-up","pós reunião","próximos passos","acompanhamento"], conteudo: "Olá, [Nome]! Boa tarde!\n\nFoi um prazer falar com você hoje! 😊\n\nConforme combinamos, seguem os próximos passos:\n\n✅ [Ação 1 — quem faz e quando]\n✅ [Ação 2 — quem faz e quando]\n✅ [Ação 3 — quem faz e quando]\n\nTe envio [proposta/material/contrato] até [data]. Qualquer dúvida, pode me acionar à vontade!\n\nAté breve,\n[Seu Nome]", recente: false, sugerido: true, usuario: false },
+  { id: 12, titulo: "Follow-up sem resposta — 2ª tentativa", categoria: "Follow-up", descricao: "Segunda tentativa de contato quando o lead não respondeu à primeira mensagem.", palavrasChave: ["follow-up","segunda tentativa","sem resposta","recontato"], conteudo: "Oi, [Nome]! Como você está?\n\nSei que a rotina pode ser corrida, então vou ser breve. 😊\n\nTe mandei uma mensagem há alguns dias sobre [assunto]. Gostaria de entender se ainda faz sentido para você ou se o momento não é ideal agora.\n\nUma resposta rápida já me ajuda muito! O que acha?", recente: true, sugerido: false, usuario: false },
+  { id: 13, titulo: "Pós-venda — satisfação do cliente", categoria: "Pós-venda", descricao: "Pesquisa de satisfação e reforço de relacionamento após a entrega do produto.", palavrasChave: ["pós-venda","satisfação","NPS","avaliação","entrega"], conteudo: "Olá, [Nome]! Tudo bem?\n\nJá faz [tempo] desde que começamos a trabalhar juntos e quero ter certeza de que está tudo correndo perfeitamente!\n\n➡️ De 1 a 10, como você avalia sua experiência conosco até agora?\n\nQualquer feedback é muito valioso para nós, seja positivo ou negativo. Queremos sempre evoluir e entregar o melhor para você! 😊\n\nUm abraço,\n[Seu Nome]", recente: false, sugerido: true, usuario: false },
+  { id: 14, titulo: "Pós-venda — indicação de novos clientes", categoria: "Pós-venda", descricao: "Solicita indicação de novos clientes a partir de um cliente satisfeito.", palavrasChave: ["pós-venda","indicação","referência","programa de indicação"], conteudo: "Oi, [Nome]! Tudo certo?\n\nFico muito feliz que a parceria está indo tão bem! 🎉\n\nTenho um pedido especial: você conhece alguém que poderia se beneficiar do que fazemos? Uma indicação sua vale muito para nós.\n\nE claro, cuidamos muito bem de quem chega por você. 😊\n\nSe alguém vier à mente, pode me passar o contato ou apresentar diretamente. Vou fazer questão de dar atenção especial!\n\nMuito obrigado pela confiança,\n[Seu Nome]", recente: true, sugerido: false, usuario: false },
+  { id: 15, titulo: "Negociação — desconto com justificativa", categoria: "Negociação", descricao: "Como apresentar um desconto de forma estratégica sem desvalorizar o produto.", palavrasChave: ["negociação","desconto","preço","condição especial","proposta"], conteudo: "Olá, [Nome]!\n\nAnalisei sua solicitação com cuidado e consegui uma condição especial para fecharmos hoje:\n\n💰 De R$ [Valor original] por R$ [Valor com desconto]\n📅 Condição válida até: [Data limite]\n🔒 Motivo: [Fim de mês / Cota / Parceria estratégica]\n\nEssa é a melhor condição que consigo viabilizar para garantir que você tenha acesso a tudo que combinamos.\n\nO que você acha? Podemos avançar? 😊", recente: false, sugerido: true, usuario: false },
+  { id: 16, titulo: "Negociação — contorno de objeção de preço", categoria: "Negociação", descricao: "Abordagem para quando o cliente diz que o produto está caro.", palavrasChave: ["negociação","caro","preço alto","objeção preço","valor"], conteudo: "Entendo, [Nome]! O investimento é um ponto que precisa fazer sentido para você. 😊\n\nMe permite compartilhar um pensamento?\n\nNossos clientes que investiram em [produto/serviço] viram um retorno médio de [resultado]. Ou seja, o custo mensal de R$ [valor] se paga com [exemplo de resultado].\n\nAlém disso, o custo de não ter essa solução pode ser ainda maior: [impacto negativo sem o produto].\n\nVale a pena conversarmos sobre como maximizar o retorno para o seu caso específico? 🚀", recente: true, sugerido: false, usuario: false },
+  { id: 17, titulo: "Gatilho de urgência — fim de prazo", categoria: "Gatilhos Mentais", descricao: "Cria urgência legítima informando sobre um prazo real de oferta.", palavrasChave: ["gatilho","urgência","prazo","deadline","oferta limitada"], conteudo: "Oi, [Nome]! Preciso te contar uma novidade importante. ⚠️\n\nA condição especial que te apresentei vence hoje às [horário]/no dia [data] e não consigo garantir que ela se renova.\n\nSei que a decisão é sua e respeito isso completamente. Mas não queria que você perdesse essa oportunidade por falta de informação.\n\nPosso te ligar em [horário] para tirarmos as últimas dúvidas e avançarmos?", recente: false, sugerido: true, usuario: false },
+  { id: 18, titulo: "Gatilho de escassez — vagas limitadas", categoria: "Gatilhos Mentais", descricao: "Gatilho de escassez quando existe um número real de vagas ou unidades.", palavrasChave: ["gatilho","escassez","vagas","limitado","exclusivo"], conteudo: "Olá, [Nome]! Tudo bem?\n\nPreciso te dar uma informação importante: só temos [número] vagas disponíveis nesta turma/lote e [número já vendidas] já foram preenchidas.\n\nNão estou dizendo isso para te pressionar, mas genuinamente não quero que você perca a oportunidade por conta disso.\n\nVocê consegue me dar uma resposta hoje? Assim posso reservar a sua vaga. 🙏", recente: true, sugerido: false, usuario: false },
+  { id: 19, titulo: "Objeção — preciso pensar mais", categoria: "Objeções", descricao: "Resposta para quando o cliente pede tempo para pensar antes de decidir.", palavrasChave: ["objeção","preciso pensar","vou pensar","não agora","deixa eu avaliar"], conteudo: "Claro, [Nome]! É natural querer pensar com calma. 😊\n\nPara te ajudar nessa reflexão, me permite fazer três perguntas rápidas?\n\n1️⃣ O que especificamente você ainda precisa avaliar?\n2️⃣ Existe alguma dúvida que eu ainda não respondi?\n3️⃣ Tem alguém mais envolvido nessa decisão?\n\nCom essas respostas consigo te apoiar melhor e deixar o caminho mais claro. O que você acha?", recente: false, sugerido: true, usuario: false },
+  { id: 20, titulo: "Objeção — já tenho um fornecedor", categoria: "Objeções", descricao: "Abordagem quando o prospect já possui um fornecedor no segmento.", palavrasChave: ["objeção","fornecedor","concorrente","já tenho","satisfeito"], conteudo: "Que ótimo, [Nome]! Fico feliz que você já tem um parceiro nessa área. 😊\n\nNesses casos, o que normalmente converso com nossos clientes é: não se trata de substituir, mas de comparar.\n\nVocê poderia me contar rapidamente o que mais valoriza no seu fornecedor atual? E o que, se pudesse, mudaria?\n\nCom isso consigo te mostrar com clareza se temos algo que complementa ou supera o que você já tem. Combinado? 🤝", recente: true, sugerido: false, usuario: false },
+  { id: 21, titulo: "Recuperação de cliente inativo", categoria: "Recuperação de Clientes", descricao: "Reativação de cliente que não compra há mais de 3 meses.", palavrasChave: ["recuperação","cliente inativo","reativação","retorno","saudade"], conteudo: "Olá, [Nome]! Tudo bem? 😊\n\nPercebi que faz um tempo que não nos falamos e vim verificar como você está.\n\nNosso time tem trabalhado em novidades que podem ser muito relevantes para você: [breve descrição da novidade].\n\nAlém disso, preparamos uma condição especial de retorno para clientes como você. Posso te apresentar os detalhes?\n\nAguardo seu retorno com carinho! 💙\n[Seu Nome]", recente: false, sugerido: true, usuario: false },
+  { id: 22, titulo: "Recuperação após reclamação", categoria: "Recuperação de Clientes", descricao: "Mensagem de recuperação para cliente que registrou reclamação ou insatisfação.", palavrasChave: ["recuperação","reclamação","insatisfação","problema","resolução"], conteudo: "Olá, [Nome].\n\nFiquei sabendo sobre o problema que você enfrentou e, antes de qualquer coisa, preciso pedir desculpas. Isso não deveria ter acontecido. 🙏\n\nJá acionei nossa equipe para resolver [situação] até [prazo]. Mas além da solução imediata, quero entender o que posso fazer para reconquistar sua confiança.\n\nPosso te ligar hoje para conversarmos pessoalmente?\n\nObrigado por ter nos dado a oportunidade de melhorar,\n[Seu Nome]", recente: true, sugerido: false, usuario: false },
+  { id: 23, titulo: "Envio de material de apoio", categoria: "Outros", descricao: "Mensagem para envio de conteúdo, case ou material informativo ao prospect.", palavrasChave: ["material","conteúdo","case","envio","informação","estudo de caso"], conteudo: "Olá, [Nome]! Tudo bem?\n\nConforme conversamos, estou te enviando o material que pode te ajudar na sua avaliação:\n\n📎 [Nome do material/link]\n\n[Breve descrição do que o lead encontrará no material e por que é relevante para ele].\n\nDepois que você der uma olhada, gostaria muito de ouvir sua opinião. Podemos marcar 15 minutinhos para conversar sobre isso?\n\nQualquer dúvida, é só me chamar! 😊", recente: false, sugerido: false, usuario: false },
+  { id: 24, titulo: "Aniversário do cliente", categoria: "Outros", descricao: "Mensagem de aniversário personalizada para clientes da carteira.", palavrasChave: ["aniversário","parabéns","relacionamento","data especial"], conteudo: "Olá, [Nome]! 🎉🎂\n\nHoje é um dia especial — seu aniversário! — e eu não poderia deixar passar sem te desejar tudo de melhor.\n\nQue este novo ciclo seja repleto de conquistas, saúde e muito sucesso nos seus projetos!\n\nÉ um prazer trabalhar com você. Conte sempre comigo!\n\nUm abraço carinhoso,\n[Seu Nome] — Piveta", recente: true, sugerido: true, usuario: false }
+];
+
+const categorias = ["Todas","Saudação","Breakup","Sem Demanda","Rastreio","Confirmação de Compra","Follow-up","Pós-venda","Negociação","Gatilhos Mentais","Objeções","Recuperação de Clientes","Troca e Devolução","Encerramento de Parceria","Outros"].filter(c => c !== "Todas").sort((a,b) => a.localeCompare(b,"pt-BR"));
+categorias.unshift("Todas");
+
+const catIcones = { "Troca e Devolução":"📦","Encerramento de Parceria":"🤝","Todas":"📋","Saudação":"👋","Breakup":"🚪","Sem Demanda":"😴","Rastreio":"📍","Confirmação de Compra":"✅","Follow-up":"🔄","Pós-venda":"⭐","Negociação":"🤝","Gatilhos Mentais":"⚡","Objeções":"🛡️","Recuperação de Clientes":"💚","Outros":"📌" };
+
+const catCores = { "Troca e Devolução":"cat-cor-posvenda", "Encerramento de Parceria":"cat-cor-breakup", "Saudação":"cat-cor-saudacao","Breakup":"cat-cor-breakup","Sem Demanda":"cat-cor-sem-demanda","Rastreio":"cat-cor-rastreio","Confirmação de Compra":"cat-cor-confirmacao","Follow-up":"cat-cor-followup","Pós-venda":"cat-cor-posvenda","Negociação":"cat-cor-negociacao","Gatilhos Mentais":"cat-cor-gatilhos","Objeções":"cat-cor-objecoes","Recuperação de Clientes":"cat-cor-recuperacao","Outros":"cat-cor-outros" };
+
+/* ===== ESTADO ===== */
+let usuarioAtual = null;
+let administradorAtual = false;
+let primeiroCadastroNome = false;
+let salvandoPerfil = false;
+let carregamentoAtual = 0;
+let templates = [];
+let categoriaAtiva = "Início";
+let termoPesquisa = "";
+let templateAtualModal = null;
+let modoEdicao = null; // id do template sendo editado
+let idParaExcluir = null;
+let proximoId = 100;
+
+/* ===== BANCO COMPARTILHADO — SUPABASE =====
+   Depois de criar o projeto Supabase, cole aqui a Project URL e a
+   Publishable key (sb_publishable_...). Não use a service_role key neste arquivo. */
+
+const SUPABASE_URL = "https://ytcghsglbisbbtobgdpp.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mDNCgMXUloV8aATfkMah0A_r_CL8XcS";
+
+const supabaseConfigurado =
+  typeof window.supabase !== "undefined" &&
+  SUPABASE_URL.startsWith("https://") &&
+  SUPABASE_ANON_KEY.length > 20 &&
+  !SUPABASE_URL.includes("COLE_AQUI") && !SUPABASE_ANON_KEY.includes("COLE_AQUI");
+
+const supabaseClient = supabaseConfigurado
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+// Dados compartilhados não são carregados do cache após sair.
+function salvarBackupLocal() {}
+function exigirLogin() {
+  if (!supabaseClient || !usuarioAtual) throw new Error("Entre com sua conta para continuar.");
+}
+function ehAdministrador() { return !!usuarioAtual && administradorAtual; }
+function permitirAdministrador() {
+  if (ehAdministrador()) return true;
+  mostrarToast("Esta ação é exclusiva do Administrador.", "erro");
+  return false;
+}
+function iniciaisUsuario(nome) {
+  const partes = String(nome || "").trim().split(/\s+/).filter(Boolean);
+  if (!partes.length) return "?";
+  if (partes.length === 1) return Array.from(partes[0]).slice(0, 2).join("").toLocaleUpperCase("pt-BR");
+  return (Array.from(partes[0])[0] + Array.from(partes[partes.length - 1])[0]).toLocaleUpperCase("pt-BR");
+}
+function atualizarControlesPerfil() {
+  document.querySelectorAll("[data-admin]").forEach(el => { el.hidden = !ehAdministrador(); });
+  const nome = usuarioAtual?.user_metadata?.full_name || "";
+  document.getElementById("usuario-logado").textContent = nome;
+  document.getElementById("perfil-papel").textContent = usuarioAtual ? (ehAdministrador() ? "Administrador" : "Usuário") : "";
+  document.getElementById("perfil-email").textContent = usuarioAtual?.email || "";
+  document.getElementById("perfil-iniciais").textContent = usuarioAtual ? iniciaisUsuario(nome) : "";
+  document.getElementById("perfil-avatar").setAttribute("aria-label", nome ? "Abrir menu de " + nome : "Abrir menu do usuário");
+}
+function fecharMenuUsuario() {
+  document.getElementById("perfil-menu").hidden = true;
+  document.getElementById("perfil-avatar").setAttribute("aria-expanded", "false");
+}
+function alternarMenuUsuario() {
+  exigirLogin();
+  const menu = document.getElementById("perfil-menu");
+  menu.hidden = !menu.hidden;
+  document.getElementById("perfil-avatar").setAttribute("aria-expanded", String(!menu.hidden));
+  if (!menu.hidden) menu.querySelector("button").focus();
+}
+function abrirConfiguracoesUsuario(primeiro = false) {
+  exigirLogin(); fecharMenuUsuario();
+  primeiroCadastroNome = primeiro;
+  document.getElementById("perfil-dialog-titulo").textContent = primeiro ? "Como podemos te chamar?" : "Configurações do usuário";
+  document.getElementById("perfil-dialog-descricao").textContent = primeiro ? "Informe seu nome uma única vez. Ele identificará os templates que você criar." : "A alteração vale para os próximos templates. Os anteriores mantêm o nome registrado na criação.";
+  document.getElementById("perfil-conta-email").value = usuarioAtual.email || "";
+  document.getElementById("perfil-nome-input").value = usuarioAtual.user_metadata?.full_name || "";
+  document.getElementById("perfil-erro").textContent = "";
+  document.getElementById("perfil-cancelar").textContent = primeiro ? "Sair da conta" : "Cancelar";
+  const dialog = document.getElementById("perfil-dialog");
+  if (!dialog.open) dialog.showModal();
+  document.getElementById("perfil-nome-input").focus();
+}
+function cancelarPerfil(event) {
+  if (event) event.preventDefault();
+  if (salvandoPerfil) return;
+  document.getElementById("perfil-dialog").close();
+  if (primeiroCadastroNome) { primeiroCadastroNome = false; sairBiblioteca(); }
+  else document.getElementById("perfil-avatar").focus();
+}
+async function salvarPerfilUsuario(event) {
+  event.preventDefault();
+  if (salvandoPerfil) return;
+  exigirLogin();
+  const nome = document.getElementById("perfil-nome-input").value.trim();
+  const aviso = document.getElementById("perfil-erro");
+  if (!nome || nome.length > 80) { aviso.textContent = "Informe um nome de até 80 caracteres."; return; }
+  const conta = usuarioAtual.id;
+  const primeiro = primeiroCadastroNome;
+  const btn = document.getElementById("perfil-salvar");
+  salvandoPerfil = true; btn.disabled = true; aviso.textContent = "";
+  try {
+    const { data, error } = await supabaseClient.auth.updateUser({ data: { full_name: nome } });
+    if (error) throw new Error("Não foi possível salvar seu nome. Tente novamente.");
+    if (usuarioAtual?.id !== conta) return;
+    usuarioAtual = data.user;
+    if (primeiro) await entrarBiblioteca();
+    else atualizarControlesPerfil();
+    primeiroCadastroNome = false;
+    document.getElementById("perfil-dialog").close();
+    document.getElementById("perfil-avatar").focus();
+    mostrarToast(primeiro ? "Bem-vindo à Biblioteca Piveta!" : "Nome atualizado para os próximos templates.");
+  } catch (e) { aviso.textContent = e.message || "Não foi possível salvar seu nome."; }
+  finally { salvandoPerfil = false; btn.disabled = false; }
+}
+document.addEventListener("click", event => {
+  if (!document.getElementById("perfil-wrap").contains(event.target)) fecharMenuUsuario();
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && !document.getElementById("perfil-menu").hidden) {
+    fecharMenuUsuario(); document.getElementById("perfil-avatar").focus();
+  }
+});
+function novoId() { return Date.now() * 1000 + Math.floor(Math.random() * 1000); }
+function statusBanco(texto, online = false) {
+  const el = document.getElementById("status-banco-piveta");
+  if (el) { el.textContent = "● " + texto; el.className = online ? "online" : "offline"; }
+}
+function normalizarTemplate(t) {
+  return {
+    id: Number(t.id),
+    titulo: t.titulo || "",
+    categoria: t.categoria || "Outros",
+    descricao: t.descricao || "",
+    palavrasChave: Array.isArray(t.palavrasChave)
+      ? t.palavrasChave
+      : (Array.isArray(t.palavras_chave) ? t.palavras_chave : []),
+    conteudo: t.conteudo || "",
+    recente: !!t.recente,
+    sugerido: !!t.sugerido,
+    usuario: !!t.usuario,
+    origem: t.origem || "manual",
+    criado_em: t.criado_em || null,
+    copias: Number(t.copias) || 0,
+    criado_por: t.criado_por || null,
+    autor_nome: t.autor_nome || "Desconhecido"
+  };
+}
+
+function templateParaBanco(t) {
+  return {
+    id: Number(t.id),
+    titulo: t.titulo,
+    categoria: t.categoria,
+    descricao: t.descricao || "",
+    palavras_chave: Array.isArray(t.palavrasChave) ? t.palavrasChave : [],
+    conteudo: t.conteudo,
+    recente: !!t.recente,
+    sugerido: !!t.sugerido,
+    usuario: !!t.usuario,
+    origem: t.origem || "manual"
+  };
+}
+
+async function salvarTemplateNoBanco(t, editar = false) {
+  exigirLogin();
+  if (editar && !ehAdministrador()) throw new Error("Edição exclusiva do Administrador.");
+  const consulta = editar
+    ? supabaseClient.from("templates").update(templateParaBanco(t)).eq("id", Number(t.id))
+    : supabaseClient.from("templates").insert(templateParaBanco(t));
+  const { data, error } = await consulta.select("*").single();
+  if (error) throw error;
+  const copias = t.copias || 0;
+  Object.assign(t, normalizarTemplate(data), { copias });
+}
+async function excluirTemplateDoBanco(id) {
+  exigirLogin();
+  if (!ehAdministrador()) throw new Error("Exclusão exclusiva do Administrador.");
+  const { data, error } = await supabaseClient.from("templates").delete().eq("id", Number(id)).select("id");
+  if (error) throw error;
+  if (!data || !data.length) throw new Error("Exclusão não autorizada.");
+}
+async function carregarStorage() {
+  exigirLogin();
+  const versao = ++carregamentoAtual;
+  const conta = usuarioAtual.id;
+  const { data, error } = await supabaseClient.from("templates").select("*").order("id", { ascending: true });
+  if (versao !== carregamentoAtual || usuarioAtual?.id !== conta) return false;
+  if (error) { statusBanco("Falha ao carregar o banco"); throw error; }
+  const { data: contagens, error: erroContagem } = await supabaseClient.from("template_copias").select("template_id,quantidade");
+  if (versao !== carregamentoAtual || usuarioAtual?.id !== conta) return false;
+  if (erroContagem) throw new Error("Execute o SQL do contador de cópias no Supabase para carregar a biblioteca.");
+  const porId = new Map((contagens || []).map(c => [Number(c.template_id), Number(c.quantidade) || 0]));
+  templates = (data || []).map(t => normalizarTemplate({ ...t, copias: porId.get(Number(t.id)) || 0 }));
+  proximoId = Math.max(...templates.map(t => Number(t.id) || 0), 99) + 1;
+  statusBanco("Banco conectado • acesso autenticado", true);
+  return true;
+}
+function bloquearBiblioteca() {
+  fecharMenuUsuario();
+  document.getElementById("perfil-dialog").close();
+  document.getElementById("perfil-nome-input").value = "";
+  document.getElementById("perfil-conta-email").value = "";
+  primeiroCadastroNome = false;
+  usuarioAtual = null;
+  administradorAtual = false;
+  atualizarControlesPerfil();
+  carregamentoAtual++;
+  templates = [];
+  templateAtualModal = null;
+  modoEdicao = null;
+  idParaExcluir = null;
+  categoriaAtiva = "Início";
+  termoPesquisa = "";
+  document.getElementById("search-input").value = "";
+  document.getElementById("tela-lib").style.display = "none";
+  document.getElementById("tela-bv").style.display = "flex";
+  document.getElementById("conteudo-principal").innerHTML = "";
+  document.getElementById("lista-categorias").innerHTML = "";
+  document.getElementById("stat-total").textContent = "0";
+  document.getElementById("usuario-logado").textContent = "";
+  ["modal-overlay", "modal-form-overlay", "modal-confirm-overlay"].forEach(id => document.getElementById(id).classList.remove("aberto"));
+  document.getElementById("modal-conteudo").innerHTML = "";
+  document.getElementById("f-conteudo").value = "";
+  document.body.style.overflow = "";
+  statusBanco("Faça login para acessar");
+  try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+}
+async function entrarBiblioteca() {
+  exigirLogin();
+  const { data: admin, error: erroPerfil } = await supabaseClient.rpc("piveta_is_admin");
+  if (erroPerfil) throw new Error("Execute o SQL de perfis no Supabase antes de entrar.");
+  administradorAtual = admin === true;
+  if (!await carregarStorage()) return;
+  atualizarControlesPerfil();
+  document.getElementById("stat-total").textContent = templates.length;
+  renderizarSidebar(); renderizarConteudo();
+  document.getElementById("tela-bv").style.display = "none";
+  document.getElementById("tela-lib").style.display = "flex";
+}
+async function fazerLogin(event) {
+  event.preventDefault();
+  const btn = document.getElementById("login-btn");
+  const aviso = document.getElementById("login-erro");
+  aviso.textContent = ""; btn.disabled = true;
+  try {
+    if (!supabaseClient) throw new Error("Não foi possível carregar o Supabase. Verifique a conexão e recarregue a página.");
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: document.getElementById("login-email").value.trim(),
+      password: document.getElementById("login-senha").value
+    });
+    if (error) throw new Error("Não foi possível entrar. Confira e-mail, senha e a confirmação da conta.");
+    usuarioAtual = data.user;
+    if (!usuarioAtual.user_metadata?.full_name?.trim()) abrirConfiguracoesUsuario(true);
+    else await entrarBiblioteca();
+  } catch (e) {
+    bloquearBiblioteca();
+    aviso.textContent = e.message || "Não foi possível acessar. Confira se o SQL de configuração já foi executado.";
+  } finally { document.getElementById("login-senha").value = ""; btn.disabled = false; }
+}
+async function sairBiblioteca() {
+  bloquearBiblioteca();
+  if (supabaseClient) {
+    const { error } = await supabaseClient.auth.signOut({ scope: "local" });
+    if (error) document.getElementById("login-erro").textContent = "A sessão não pôde ser encerrada. Confira a conexão e tente novamente.";
+  }
+}
+(async function iniciarBiblioteca() {
+  try {
+    bloquearBiblioteca();
+    if (!supabaseClient) { statusBanco("Supabase indisponível"); return; }
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") bloquearBiblioteca();
+      else if (usuarioAtual && session?.user) usuarioAtual = session.user;
+    });
+    const { data, error } = await supabaseClient.auth.getUser();
+    if (!error && data.user) {
+      usuarioAtual = data.user;
+      if (!usuarioAtual.user_metadata?.full_name?.trim()) abrirConfiguracoesUsuario(true);
+      else await entrarBiblioteca();
+    }
+  } catch (e) { bloquearBiblioteca(); document.getElementById("login-erro").textContent = "Não foi possível carregar a biblioteca. Confira a conexão e execute o SQL de configuração."; }
+})();
+
+/* ===== SIDEBAR ===== */
+function renderizarSidebar() {
+  const lista = document.getElementById("lista-categorias");
+  lista.innerHTML = `<div class="sidebar-titulo">Home</div>
+    <div class="cat-item ${categoriaAtiva === "Início" ? "ativa" : ""}" onclick="selecionarCategoria('Início')"><span>🏠</span><span>Início</span></div>
+    <hr class="sidebar-divisor">
+    <div class="sidebar-titulo">Categorias</div>` + categorias.map(cat => {
+    const count = cat === "Todas" ? templates.length : templates.filter(t => t.categoria === cat).length;
+    return `<div class="cat-item ${cat === categoriaAtiva ? 'ativa' : ''}" onclick="selecionarCategoria('${cat.replace(/'/g,"\\'")}')">
+      <span>${catIcones[cat] || '📄'}</span>
+      <span>${cat}</span>
+      <span class="cat-badge">${count}</span>
+    </div>`;
+  }).join('');
+}
+
+function selecionarCategoria(cat) {
+  categoriaAtiva = cat;
+  renderizarSidebar();
+  renderizarConteudo();
+  atualizarBtnLimpar();
+}
+
+/* ===== PESQUISA ===== */
+function pesquisar() {
+  termoPesquisa = document.getElementById("search-input").value.trim().toLowerCase();
+  renderizarConteudo();
+  atualizarBtnLimpar();
+}
+
+function atualizarBtnLimpar() {
+  const btn = document.getElementById("btn-limpar");
+  btn.style.display = (termoPesquisa || !["Início", "Todas"].includes(categoriaAtiva)) ? "block" : "none";
+}
+
+function limparFiltros() {
+  termoPesquisa = "";
+  categoriaAtiva = "Todas";
+  document.getElementById("search-input").value = "";
+  renderizarSidebar();
+  renderizarConteudo();
+  atualizarBtnLimpar();
+}
+
+function filtrarTemplates() {
+  return templates.filter(t => {
+    const catOk = ["Início", "Todas"].includes(categoriaAtiva) || t.categoria === categoriaAtiva;
+    if (!termoPesquisa) return catOk;
+    const q = termoPesquisa;
+    return catOk && (
+      t.titulo.toLowerCase().includes(q) ||
+      t.conteudo.toLowerCase().includes(q) ||
+      t.descricao.toLowerCase().includes(q) ||
+      t.categoria.toLowerCase().includes(q) ||
+      (t.palavrasChave||[]).some(p => p.toLowerCase().includes(q))
+    );
+  });
+}
+
+/* ===== RENDERIZAR ===== */
+function renderizarConteudo() {
+  const conteudo = document.getElementById("conteudo-principal");
+  if (categoriaAtiva === "Início" && !termoPesquisa) { renderizarHome(conteudo); return; }
+  const resultados = filtrarTemplates();
+  if (resultados.length === 0) {
+    conteudo.innerHTML = `
+      <div class="resultado-info">Nenhum resultado encontrado</div>
+      <div class="empty-state">
+        <div class="empty-state-ico">🔍</div>
+        <h3>Nenhum template encontrado</h3>
+        <p>Tente outros termos ou limpe os filtros para ver todos os templates.</p>
+      </div>`;
+    return;
+  }
+  const info = termoPesquisa
+    ? `<div class="resultado-info">Mostrando <strong>${resultados.length}</strong> resultado${resultados.length!==1?'s':''} para "<strong>${esc(termoPesquisa)}</strong>"</div>`
+    : categoriaAtiva === "Todas"
+      ? `<div class="resultado-info">Todos os templates · <strong>${resultados.length}</strong> template${resultados.length!==1?'s':''}</div>`
+      : `<div class="resultado-info"><strong>${resultados.length}</strong> template${resultados.length!==1?'s':''} em <strong>${esc(categoriaAtiva)}</strong></div>`;
+  conteudo.innerHTML = `${info}<div class="cards-grid">${resultados.map(t => criarCardHTML(t)).join('')}</div>`;
+}
+
+function ultimosTemplatesCriados() {
+  return [...templates].sort((a,b) => {
+    const dataA = a.criado_em ? Date.parse(a.criado_em) || 0 : 0;
+    const dataB = b.criado_em ? Date.parse(b.criado_em) || 0 : 0;
+    return dataB - dataA || Number(b.id) - Number(a.id);
+  }).slice(0,8);
+}
+function templatesMaisUtilizados() {
+  return templates.filter(t => t.copias > 0).sort((a,b) => b.copias - a.copias || Number(b.id) - Number(a.id)).slice(0,20);
+}
+function renderizarHome(conteudo) {
+  const novos = ultimosTemplatesCriados();
+  const utilizados = templatesMaisUtilizados();
+  conteudo.innerHTML = `<div class="secao-titulo">Últimos Templates Criados</div>
+    ${novos.length ? `<div class="cards-grid">${novos.map(criarCardHTML).join('')}</div>` : '<p class="secao-vazia">Nenhum template criado ainda.</p>'}
+    <div class="secao-titulo">Templates mais Utilizados</div>
+    ${utilizados.length ? `<div class="cards-grid">${utilizados.map(criarCardHTML).join('')}</div>` : '<p class="secao-vazia">Nenhum template foi copiado ainda.</p>'}
+    `;
+}
+
+function criarCardHTML(t) {
+  const cor = catCores[t.categoria] || "cat-cor-outros";
+  const menuEditar = ehAdministrador()
+    ? `<div class="card-menu-actions">
+        <button class="btn-editar" onclick="abrirFormEditar(${t.id})">✏️ Editar</button>
+        <button class="btn-excluir" onclick="pedirExcluir(${t.id})">🗑️ Excluir</button>
+       </div>`
+    : '';
+  return `<div class="card" id="card-${t.id}">
+    <div class="card-header">
+      <div class="card-nome">${esc(t.titulo)}</div>
+      <span class="card-cat ${cor}">${esc(t.categoria)}</span>
+    </div>
+    <div class="card-desc">${esc(t.descricao)}</div>
+    <div class="card-actions">
+      <button class="btn-visualizar" onclick="abrirModal(${t.id})">👁 Visualizar</button>
+      <button class="btn-copiar" data-copiar-id="${t.id}" onclick="copiarTemplate(${t.id})">📋 Copiar</button>
+    </div>
+    ${menuEditar}
+    <div class="card-rodape"><span class="card-autor">Cadastrado por: ${esc(t.autor_nome || "Desconhecido")}</span><span class="card-copias" title="Quantidade de cópias realizadas pela equipe" aria-label="${Number(t.copias) || 0} cópias"><span aria-hidden="true">📋</span> ${Number(t.copias) || 0}</span></div>
+  </div>`;
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ===== MODAL VISUALIZAR ===== */
+function abrirModal(id) {
+  const t = templates.find(x => x.id === id);
+  if (!t) return;
+  templateAtualModal = t;
+  const cor = catCores[t.categoria] || "cat-cor-outros";
+  document.getElementById("modal-nome").textContent = t.titulo;
+  const badge = document.getElementById("modal-cat-badge");
+  badge.textContent = t.categoria;
+  badge.className = "card-cat " + cor;
+  document.getElementById("modal-conteudo").textContent = t.conteudo;
+  document.getElementById("modal-overlay").classList.add("aberto");
+  document.body.style.overflow = "hidden";
+}
+function fecharModal() {
+  document.getElementById("modal-overlay").classList.remove("aberto");
+  document.body.style.overflow = "";
+  templateAtualModal = null;
+  const btn = document.getElementById("modal-btn-copiar");
+  btn.textContent = "📋 Copiar template";
+  btn.style.background = "";
+}
+function fecharModalOverlay(e) {
+  if (e.target === document.getElementById("modal-overlay")) fecharModal();
+}
+
+/* ===== MODAL FORM ===== */
+function abrirFormNovo() {
+  exigirLogin();
+  modoEdicao = null;
+  document.getElementById("form-titulo-modal").textContent = "✨ Novo Template";
+  limparForm();
+  document.getElementById("modal-form-overlay").classList.add("aberto");
+  document.body.style.overflow = "hidden";
+  setTimeout(() => document.getElementById("f-titulo").focus(), 100);
+}
+
+function abrirFormEditar(id) {
+  if (!permitirAdministrador()) return;
+  const t = templates.find(x => x.id === id);
+  if (!t) return;
+  modoEdicao = id;
+  document.getElementById("form-titulo-modal").textContent = "✏️ Editar Template";
+  document.getElementById("f-titulo").value = t.titulo;
+  document.getElementById("f-categoria").value = t.categoria;
+  document.getElementById("f-descricao").value = t.descricao;
+  document.getElementById("f-palavras").value = (t.palavrasChave||[]).join(", ");
+  document.getElementById("f-conteudo").value = t.conteudo;
+  limparErrosForm();
+  document.getElementById("modal-form-overlay").classList.add("aberto");
+  document.body.style.overflow = "hidden";
+}
+
+function fecharForm() {
+  document.getElementById("modal-form-overlay").classList.remove("aberto");
+  document.body.style.overflow = "";
+  modoEdicao = null;
+}
+function fecharFormOverlay(e) {
+  if (e.target === document.getElementById("modal-form-overlay")) fecharForm();
+}
+
+function limparForm() {
+  ["f-titulo","f-categoria","f-descricao","f-palavras","f-conteudo"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el.tagName === "SELECT") el.selectedIndex = 0; else el.value = "";
+  });
+  limparErrosForm();
+}
+
+function limparErrosForm() {
+  ["f-titulo","f-categoria","f-descricao","f-conteudo"].forEach(id => {
+    document.getElementById(id).classList.remove("erro");
+  });
+  ["err-titulo","err-categoria","err-descricao","err-conteudo"].forEach(id => {
+    document.getElementById(id).classList.remove("visivel");
+  });
+}
+
+function validarForm() {
+  let ok = true;
+  const campos = [
+    { campo: "f-titulo", erro: "err-titulo" },
+    { campo: "f-categoria", erro: "err-categoria" },
+    { campo: "f-descricao", erro: "err-descricao" },
+    { campo: "f-conteudo", erro: "err-conteudo" }
+  ];
+  campos.forEach(({ campo, erro }) => {
+    const el = document.getElementById(campo);
+    const val = el.value.trim();
+    if (!val) {
+      el.classList.add("erro");
+      document.getElementById(erro).classList.add("visivel");
+      ok = false;
+    } else {
+      el.classList.remove("erro");
+      document.getElementById(erro).classList.remove("visivel");
+    }
+  });
+  return ok;
+}
+
+async function salvarTemplate() {
+  exigirLogin();
+  if (modoEdicao !== null && !permitirAdministrador()) return;
+  if (!validarForm()) {
+    mostrarToast("Preencha todos os campos obrigatórios.", "erro");
+    return;
+  }
+
+  const titulo = document.getElementById("f-titulo").value.trim();
+  const categoria = document.getElementById("f-categoria").value;
+  const descricao = document.getElementById("f-descricao").value.trim();
+  const palavrasRaw = document.getElementById("f-palavras").value;
+  const conteudo = document.getElementById("f-conteudo").value.trim();
+  const palavrasChave = palavrasRaw.split(",").map(p => p.trim()).filter(Boolean);
+
+  let templateSalvo;
+
+  if (modoEdicao !== null) {
+    const idx = templates.findIndex(t => Number(t.id) === Number(modoEdicao));
+
+    if (idx !== -1) {
+      templates[idx] = {
+        ...templates[idx],
+        titulo, categoria, descricao, palavrasChave, conteudo
+      };
+      templateSalvo = templates[idx];
+    }
+  } else {
+    templateSalvo = {
+      id: novoId(),
+      titulo, categoria, descricao, palavrasChave, conteudo,
+      recente: true,
+      sugerido: false,
+      usuario: true, origem: "manual"
+    };
+    templates.unshift(templateSalvo);
+  }
+
+  try {
+    await salvarTemplateNoBanco(templateSalvo, modoEdicao !== null);
+  } catch (e) {
+    console.error(e);
+
+    // Recarrega do banco/backup para não deixar a tela diferente do banco.
+    await carregarStorage();
+    document.getElementById("stat-total").textContent = templates.length;
+    renderizarSidebar();
+    renderizarConteudo();
+
+    mostrarToast("Não foi possível salvar no banco compartilhado.", "erro");
+    return;
+  }
+
+  fecharForm();
+  renderizarSidebar();
+  renderizarConteudo();
+  document.getElementById("stat-total").textContent = templates.length;
+
+  if (modoEdicao === null) {
+    setTimeout(() => {
+      const card = document.getElementById("card-" + templateSalvo.id);
+      if (card) {
+        card.classList.add("card-novo");
+        setTimeout(() => card.classList.remove("card-novo"), 2500);
+      }
+    }, 100);
+
+    mostrarToast("Template criado e compartilhado com a equipe! 🎉");
+  } else {
+    mostrarToast("Template atualizado com sucesso!");
+  }
+}
+
+/* ===== EXCLUIR ===== */
+function pedirExcluir(id) {
+  if (!permitirAdministrador()) return;
+  idParaExcluir = id;
+  const t = templates.find(x => x.id === id);
+  document.getElementById("confirm-msg").textContent = t ? `"${t.titulo}" será removido permanentemente.` : "Esta ação não pode ser desfeita.";
+  document.getElementById("modal-confirm-overlay").classList.add("aberto");
+  document.body.style.overflow = "hidden";
+}
+function fecharConfirm() {
+  document.getElementById("modal-confirm-overlay").classList.remove("aberto");
+  document.body.style.overflow = "";
+  idParaExcluir = null;
+}
+function fecharConfirmOverlay(e) {
+  if (e.target === document.getElementById("modal-confirm-overlay")) fecharConfirm();
+}
+async function confirmarExcluir() {
+  if (!permitirAdministrador()) return;
+  if (!idParaExcluir) return;
+
+  const idExclusao = idParaExcluir;
+  const backupAntes = [...templates];
+
+  templates = templates.filter(t => Number(t.id) !== Number(idExclusao));
+
+  try {
+    await excluirTemplateDoBanco(idExclusao);
+  } catch (e) {
+    console.error(e);
+    templates = backupAntes;
+    renderizarSidebar();
+    renderizarConteudo();
+    mostrarToast("Não foi possível excluir do banco compartilhado.", "erro");
+    return;
+  }
+
+  fecharConfirm();
+  renderizarSidebar();
+  renderizarConteudo();
+  document.getElementById("stat-total").textContent = templates.length;
+  mostrarToast("Template excluído.");
+}
+
+/* ===== COPIAR — CONTADOR COMPARTILHADO ===== */
+async function registrarCopiaCompartilhada(template) {
+  exigirLogin();
+  const conta = usuarioAtual.id;
+  const { data, error } = await supabaseClient.rpc("piveta_registrar_copia", { p_template_id: Number(template.id) });
+  if (error) throw error;
+  if (usuarioAtual?.id !== conta) return;
+  template.copias = Math.max(template.copias || 0, Number(data) || 0);
+  const atual = templates.find(t => Number(t.id) === Number(template.id));
+  if (atual) atual.copias = template.copias;
+  renderizarConteudo();
+}
+async function copiarComContagem(template) {
+  exigirLogin();
+  try { await navigator.clipboard.writeText(template.conteudo); }
+  catch (_) { mostrarToast("Não foi possível copiar automaticamente.", "erro"); return false; }
+  try {
+    await registrarCopiaCompartilhada(template);
+    if (usuarioAtual) mostrarToast("Template copiado com sucesso!");
+  } catch (_) {
+    if (usuarioAtual) mostrarToast("Template copiado, mas não foi possível registrar a contagem. Confira a conexão e o SQL do contador.", "aviso");
+  }
+  return true;
+}
+async function copiarTemplate(id) {
+  const t = templates.find(x => x.id === id);
+  if (!t || !await copiarComContagem(t) || !usuarioAtual) return;
+  document.querySelectorAll('[data-copiar-id="' + id + '"]').forEach(btn => {
+    btn.innerHTML = "✓ Copiado";
+    btn.classList.add("copiado");
+    setTimeout(() => { btn.innerHTML = "📋 Copiar"; btn.classList.remove("copiado"); }, 2000);
+  });
+}
+async function copiarDoModal() {
+  const t = templateAtualModal;
+  if (!t || !await copiarComContagem(t) || !usuarioAtual) return;
+  const btn = document.getElementById("modal-btn-copiar");
+  btn.textContent = "✓ Copiado!";
+  setTimeout(() => { btn.textContent = "📋 Copiar template"; }, 2000);
+}
+
+/* ===== EXPORTAR ===== */
+function exportarBiblioteca() {
+  if (!permitirAdministrador()) return;
+  const exportData = {
+    versao: "1.0",
+    exportado: new Date().toISOString(),
+    totalTemplates: templates.length,
+    templates: templates
+  };
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const dataStr = new Date().toLocaleDateString("pt-BR").replace(/\//g, "-");
+  a.href = url;
+  a.download = `biblioteca-piveta-${dataStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  mostrarToast(`Biblioteca exportada! ${templates.length} templates salvos.`);
+}
+
+/* ===== IMPORTAR ===== */
+function triggerImportar() {
+  if (!permitirAdministrador()) return;
+  document.getElementById("input-importar").value = "";
+  document.getElementById("input-importar").click();
+}
+
+function importarBiblioteca(event) {
+  if (!permitirAdministrador()) return;
+  const file = event.target.files[0];
+  if (!file) return;
+  if (!file.name.endsWith(".json")) {
+    mostrarToast("Selecione um arquivo .json válido.", "erro");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      if (!permitirAdministrador()) return;
+      const dados = JSON.parse(e.target.result);
+      let lista = [];
+      if (Array.isArray(dados)) {
+        lista = dados;
+      } else if (dados.templates && Array.isArray(dados.templates)) {
+        lista = dados.templates;
+      } else {
+        throw new Error("Formato inválido");
+      }
+      // validar campos mínimos
+      const validos = lista.filter(t => t.titulo && t.categoria && t.conteudo);
+      if (validos.length === 0) {
+        mostrarToast("Nenhum template válido encontrado no arquivo.", "erro");
+        return;
+      }
+      // Cada importação cria novos registros com o autor autenticado.
+      let maxId = novoId();
+      validos.forEach(t => {
+        t.id = maxId++;
+        t.palavrasChave = t.palavrasChave || [];
+        t.recente = !!t.recente;
+        t.sugerido = !!t.sugerido;
+        t.usuario = true;
+        t.origem = "importacao";
+        delete t.criado_por; delete t.autor_nome;
+      });
+      templates = [...validos, ...templates];
+      proximoId = maxId + 1;
+
+      if (supabaseClient) {
+        try {
+          for (const template of validos) {
+            await salvarTemplateNoBanco(template);
+          }
+        } catch (e) {
+          console.error(e);
+          await carregarStorage();
+          mostrarToast("Importação feita, mas houve erro ao sincronizar com o banco.", "erro");
+          return;
+        }
+      } else {
+        salvarBackupLocal();
+      }
+
+      renderizarSidebar();
+      renderizarConteudo();
+      mostrarToast(`${validos.length} template${validos.length!==1?'s':''} importado${validos.length!==1?'s':''}! 🎉`);
+    } catch(err) {
+      mostrarToast("Arquivo inválido ou corrompido.", "erro");
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ===== TOAST ===== */
+let toastTimer = null;
+function mostrarToast(msg, tipo = "sucesso") {
+  const toast = document.getElementById("toast");
+  toast.textContent = (tipo === "erro" ? "✕ " : tipo === "aviso" ? "⚠️ " : "✓ ") + msg;
+  toast.className = "toast" + (tipo === "erro" ? " erro" : tipo === "aviso" ? " aviso" : "");
+  toast.classList.add("visivel");
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("visivel"), 3200);
+}
+
+/* ===== KEYBOARD ===== */
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    if (document.getElementById("modal-confirm-overlay").classList.contains("aberto")) { fecharConfirm(); return; }
+    if (document.getElementById("modal-form-overlay").classList.contains("aberto")) { fecharForm(); return; }
+    if (document.getElementById("modal-overlay").classList.contains("aberto")) { fecharModal(); return; }
+  }
+});
+</script>
+
+<div id="status-banco-piveta">● Banco compartilhado: configurando...</div>
+
+
+</body>
+</html>
